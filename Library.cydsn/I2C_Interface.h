@@ -125,7 +125,7 @@
     *   \retval #I2C_NO_ERROR if device is present on the bus.
     *   \retval #I2C_DEV_NOT_FOUND if device is not present on the bus.
     */
-    uint8_t I2C_Peripheral_IsDeviceConnected(uint8_t device_address, I2C_Connection* connection);
+    uint8_t I2C_Peripheral_IsDeviceConnected(uint8_t device_address);
     
 #endif // I2C_Interface_H
 /* [] END OF FILE */
