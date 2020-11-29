@@ -15,8 +15,19 @@
     
     #include "cytypes.h"
     
+    /**
+    *   \brief No error generated during I2C transaction.
+    */
     #define I2C_NO_ERROR 0
+    
+    /**
+    *   \brief Error condition for device not found on I2C bus.
+    */
     #define I2C_DEV_NOT_FOUND 1
+    
+    /**
+    *   \brief Generic error condition for I2C communication.
+    */
     #define I2C_ERROR 2
     
     /** \brief Start the I2C peripheral.
