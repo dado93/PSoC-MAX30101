@@ -257,12 +257,22 @@
     *   with new data. If the bit is not set (0), then the FIFO is not updated 
     *   until FIFO_DATA is read or the WRITE/READ pointer positions are changed.
     *   
-    *   **Bits 3:0: FIFO Almost Full Value (FIFO_A_FULL) **
+    *   **Bits 3:0: FIFO Almost Full Value (FIFO_A_FULL)**
     *   
     *   This register sets the number of data samples (3 bytes/sample) remaining in the FIFO when the interrupt is issued. 
     *   For example, if this field is set to 0x0, the interrupt is issued when there is 0 data samples remaining in the 
     *   FIFO (all 32 FIFO words have unread data). Furthermore, if this field is set to 0xF, the interrupt is issued when
     *   15 data samples are remaining in the FIFO (17 FIFO data samples have unread data).
+    *   <table>
+        <caption id="fifo_a_full">MAX30101 FIFO Almost Full Settings</caption>
+        <tr><th>FIFO_A_FULL[3:0]<th>EMPTY DATA SAMPLES WHEN<br\>INTERRUPT IS ISSUED       <th>UNREAD DATA SAMPLES IN FIFO<br\>WHEN INTERRUPT IS ISSUED
+        <tr><td>0x0h<td>0<td>32
+        <tr><td>0x1h<td>1<td>31
+        <tr><td>0x2h<td>2<td>30
+        <tr><td>0x3h<td>3<td>29
+        <tr><td>..<td>..<td>..
+        <tr><td>0xFh<td>15 <td> 17
+        </table>
     */
     #define MAX30101_FIFO_CONF 0x08
     
@@ -271,9 +281,11 @@
     *
     *   This register is structured as follows:
     *
-    *   |   B7   |   B6   |    B5  |   B4   |   B3   |   B2   |   B1   |   B0   |
-    *   | ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ | 
-    *   | SHDN | RESET | | | | MODE[2:0] |    
+        <table>
+        <caption id="fifo_conf">MAX30101 FIFO Configuration Register</caption>
+        <tr><th>B7<th>B6<th>B5<th>B4<th>B3<th>B2<th>B1<th>B0
+        <tr><td>SHDN<td>RESET<td>-<td>-<td>-<td colspan=3, style="text-align:center">MODE[2:0]
+        </table>
     *
     *   ** Bit 7: Shutdown Control (SHDN) **
     *
@@ -312,15 +324,175 @@
     *   This register configures the sensor for SpO2 mode.
     *
     *   It is structured as follows:
-    <table>
-    <caption id="spo2 conf">MAX30101 SpO2 Configuration Register</caption>
-    <tr><th>B7<th>B6<th>B5<th>B4<th>B3<th>B2<th>B1<th>B0                      
-    <tr><td colspan=2,, style="text-align:center">SPO2_ADC_RGE[1:0]<td colspan=3, style="text-align:center">SPO2_SR[2:0]<td colspan=2, style="text-align:center"> LED_PW[1:0]
-    </table>
-        */
+        <table>
+        <caption id="spo2_conf">MAX30101 SpO2 Configuration Register</caption>
+        <tr><th>B7<th>B6<th>B5<th>B4<th>B3<th>B2<th>B1<th>B0                      
+        <tr><td colspan=2,, style="text-align:center">SPO2_ADC_RGE[1:0]<td colspan=3, style="text-align:center">SPO2_SR[2:0]<td colspan=2, style="text-align:center"> LED_PW[1:0]
+        </table>
+    *
+    *   ** Bits 6:5: SpO2 ADC Range Control **
+    *   This register sets the SpO2 sensor ADC’s full-scale range:
+        <table>
+        <caption id="spo2_adc_rge">MAX30101 SPo2 ADC Range Settings</caption>
+        <tr><th>SPO2_ADC_RGE[1:0]<th>LSB SIZE (pA)<th>FULL SCALE (nA)
+        <tr><td>00<td>7.81<td>2048
+        <tr><td>01<td>15.63<td>4096
+        <tr><td>02<td>31.25<td>8192
+        <tr><td>03<td>62.5<td>16384
+        </table>
+    *
+    *   ** Bits 4:2: SpO2 Sample Rate Control **
+    *
+    *   These bits define the effective sampling rate with one sample consisting
+    *   of one IR pulse/conversion, one RED pulse/ conversion, and one GREEN 
+    *   pulse/conversion. The sample rate and pulse-width are related in that 
+    *   the sample rate sets an upper bound on the pulse-width time.
+    *   If the user selects a sample rate that is too high for the selected 
+    *   LED_PW setting, the highest possible sample rate is programmed instead into the register.
+    *
+        <table>
+        <caption id="spo2_sr">MAX30101 SPo2 Sample Rate Settings</caption>
+        <tr><th>SPO2_SR[2:0]<th>SAMPLES PER SECOND
+        <tr><td>000<td>50
+        <tr><td>001<td>100
+        <tr><td>010<td>200
+        <tr><td>011<td>400
+        <tr><td>101<td>800
+        <tr><td>110<td>1600
+        <tr><td>111<td>3200
+        </table>
+    *
+    *   ** Bits 1:0: LED Pulse Width Control and ADC Resolution **
+    *   These bits set the LED pulse width (the IR, Red, and Green have the same pulse width), 
+    *   and, therefore, indirectly sets the integration time of the ADC in each sample. 
+    *   The ADC resolution is directly related to the integration time.
+    *
+        <table>
+        <caption id="led_pw">MAX30101 LED Pulse Width Settings</caption>
+        <tr><th>LED_PW[1:0]<th>PULSE WIDTH (uS) <th> ADC RESOLUTION (bits)
+        <tr><td>00<td>69 (68.95) <td>15
+        <tr><td>01<td>118 (117.78) <td> 16
+        <tr><td>10<td>215 (215.44) <td> 17
+        <tr><td>11<td>411 (410.75) <td> 18
+        </table>
+    */
     #define MAX30101_SP02_CONF 0x0A
     
-    //#define MAX30101_LED1_PA 0x0C
+    /**
+    *   \brief MAX30101 LED1 Pulse Amplitude Settings.
+    *
+    *   This register allows to configure the pulse amplitude for LED1.
+    *   The register is structured as follows:
+        <table>
+        <caption id="led_pa">MAX30101 FIFO Configuration Register</caption>
+        <tr><th>B7<th>B6<th>B5<th>B4<th>B3<th>B2<th>B1<th>B0
+        <tr><td colspan=8, style="text-align:center">LED1_PA[7:0]
+        </table>
+    *
+    *   The pulse amplitude is determined by the followint table:
+    *
+        <table>
+        <caption id="led_pa">MAX30101 LED Pulse Amplitude Settings</caption>
+        <tr><th>LEDx_PA[7:0]<th>TYPICAL LED CURRENT (mA)
+        <tr><td>0x00h<td>0.0
+        <tr><td>0x01h<td>0.2
+        <tr><td>0x02h<td>0.4
+        <tr><td>...<td>...
+        <tr><td>0x0fh<td>3.0
+        <tr><td>...<td>...
+        <tr><td>0x1fh<td>6.2
+        <tr><td>...<td>...
+        <tr><td>0x3fh<td>12.6
+        <tr><td>...<td>...
+        <tr><td>0x7fh<td>25.4
+        <tr><td>...<td>...
+        <tr><td>0xFFh<td>51.0
+        </table>
+    */
+    #define MAX30101_LED1_PA 0x0C
+    
+    
+    /**
+    *   \brief MAX30101 LED2 Pulse Amplitude register.
+    *
+    *   Please refer to \ref led_pa for the 
+    *   configuration of this register.
+    */
+    #define MAX30101_LED2_PA 0x0D
+    
+    /**
+    *   \brief MAX30101 LED3 Pulse Amplitude register.
+    *   
+    *   Please refer to \ref led_pa for the 
+    *   configuration of this register.
+    */
+    #define MAX30101_LED3_PA 0x0E
+    
+    /**
+    *   \brief MAX30101 LED4 Pulse Amplitude register.
+    *
+    *   Please refer to \ref led_pa for the 
+    *   configuration of this register.
+    */
+    #define MAX30101_LED4_PA 0x0F
+    
+    /**
+    *   \brief MAX30101 Multi-LED Mode Configuration register - 1.
+    *
+    *   In multi-LED mode, each sample is split into up to four time slots, 
+    *   SLOT1 through SLOT4. #MAX30101_MULTI_LED_1 and #MAX30101_MULTI_LED_2
+    *   control registers determine which LED is active in each time slot, 
+    *   making for a very flexible configuration. Each slot generates a 3-byte
+    *   output into the FIFO. One sample comprises all active slots, for example
+    *   if SLOT1 and SLOT2 are non-zero, then one sample is 2 x 3 = 6 bytes. 
+    *   If SLOT1 through SLOT3 are all non-zero, then one sample is 3 x 3 = 9 bytes.
+    *   The slots should be enabled in order (i.e., SLOT1 should not be disabled if SLOT2 
+    *   or SLOT3 are enabled). 
+    *   Both LED3 and LED4 are wired to Green LED. Green LED sinks current out 
+    *   of #MAX30101_LED3_PA and #MAX30101_LED4_PA configuration in Multi-LED Mode 
+    *   and SLOTx[2:0] = 011.
+    *
+    *   The register is structured as follows:
+    *
+    *   <table>
+        <caption id="multi_led_1">MAX30101 FIFO Configuration Register</caption>
+        <tr><th>B7<th>B6<th>B5<th>B4<th>B3<th>B2<th>B1<th>B0
+        <tr><td>-<td colspan=3, style='text-align:center'>SLOT2[2:0]<td>-<td colspan=3, style="text-align:center">SLOT1[2:0]<td>-
+        </table>
+    *
+    *   The settings for #MAX30101_MULTI_LED_1 and #MAX30101_MULTI_LED_2 registers
+    *   allows to setup the following Multi-LED modes:
+        <table>
+        <caption id="multi_mode">MAX30101 Multi-LED Mode Configuration</caption>
+        <tr><th>SLOTx[2:0] Setting <th>WHICH LED IS ACTIVE <th>LED PULSE AMPLITUDE SETTING
+        <tr><td>000<td>None (time slot is disabled) <td>N/A (Off)
+        <tr><td>001<td>LED1 (RED) <td> #MAX30101_LED1_PA
+        <tr><td>010<td>LED2 (IR) <td>#MAX30101_LED2_PA
+        <tr><td rowspan=2>011*<td>LED3 (GREEN) <td>#MAX30101_LED3_PA[7:0]
+        <tr><td>LED4 (GREEN) <td>#MAX30101_LED4_PA[7:0]
+        <tr><td>100<td>None <td>N/A (Off)
+        <tr><td>101<td>RESERVED<td>RESERVED
+        <tr><td>110<td>RESERVED<td>RESERVED
+        <tr><td>111<td>RESERVED<td>RESERVED
+        </table>
+    *
+    */
+    #define MAX30101_MULTI_LED_1 0x11
+    
+    /**
+    *   \brief MAX30101 Multi-LED Mode Configuration register - 2.
+    *
+    *   Please refer to #MAX30101_MULTI_LED_1 for the explanation of the register.
+    *   This register is structured as follows:
+    *   The register is structured as follows:
+    *
+    *   <table>
+        <caption id="multi_led_2">MAX30101 FIFO Configuration Register</caption>
+        <tr><th>B7<th>B6<th>B5<th>B4<th>B3<th>B2<th>B1<th>B0
+        <tr><td>-<td colspan=3, style='text-align:center'>SLOT2[2:0]<td>-<td colspan=3, style="text-align:center">SLOT1[2:0]<td>-
+        </table>
+    */
+    #define MAX30101_MULTI_LED_2 0x11
     
     
 #endif
