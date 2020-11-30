@@ -33,6 +33,36 @@
     #define MAX30101_ERROR 2
     
     //==============================================
+    //  MAX30101 MACROS FOR REGISTERS CONFIGURATION
+    //==============================================
+    
+    /**
+    *   \brief MAX30101 Heart Rate mode.
+    */
+    #define MAX30101_HR_MODE 0x02
+    
+    /**
+    *   \brief MAX30101 SpO2 mode. mode.
+    */
+    #define MAX30101_SPO2_MODE 0x03
+
+    /**
+    *   \brief MAX30101 Multi LED mode.
+    */
+    #define MAX30101_MULTI_MODE 0x08
+    
+    #define MAX30101_LED_1 0x00
+    #define MAX30101_LED_2 0x01
+    #define MAX30101_LED_3 0x02
+    #define MAX30101_LED_4 0x03
+
+    //==============================================
+    //==============================================
+    //              I2C REGISTERS
+    //==============================================
+    //==============================================
+    
+    //==============================================
     //     MAX30101 INTERRUPT STATUTS I2C REGISTERS
     //==============================================
     
@@ -327,7 +357,7 @@
         <table>
         <caption id="spo2_conf">MAX30101 SpO2 Configuration Register</caption>
         <tr><th>B7<th>B6<th>B5<th>B4<th>B3<th>B2<th>B1<th>B0                      
-        <tr>td>-<td colspan=2, style="text-align:center">SPO2_ADC_RGE[1:0]<td colspan=3, style="text-align:center">SPO2_SR[2:0]<td colspan=2, style="text-align:center"> LED_PW[1:0]
+        <tr><td>-<td colspan=2, style="text-align:center">SPO2_ADC_RGE[1:0]<td colspan=3, style="text-align:center">SPO2_SR[2:0]<td colspan=2, style="text-align:center"> LED_PW[1:0]
         </table>
     *
     *   **Bits 6:5: SpO2 ADC Range Control**
