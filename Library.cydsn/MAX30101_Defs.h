@@ -277,7 +277,7 @@
     #define MAX30101_FIFO_CONF 0x08
     
     /**
-    *   \brief MAX30101 Mode COnfiguration.
+    *   \brief MAX30101 Mode configuration register.
     *
     *   This register is structured as follows:
     *
@@ -287,7 +287,7 @@
         <tr><td>SHDN<td>RESET<td>-<td>-<td>-<td colspan=3, style="text-align:center">MODE[2:0]
         </table>
     *
-    *   ** Bit 7: Shutdown Control (SHDN) **
+    *   **Bit 7: Shutdown Control (SHDN)**
     *
     *   The part can be put into a power-save mode by setting this bit to one. 
     *   While in power-save mode, all registers retain their values, and write/read operations function as normal.
@@ -327,10 +327,10 @@
         <table>
         <caption id="spo2_conf">MAX30101 SpO2 Configuration Register</caption>
         <tr><th>B7<th>B6<th>B5<th>B4<th>B3<th>B2<th>B1<th>B0                      
-        <tr><td colspan=2,, style="text-align:center">SPO2_ADC_RGE[1:0]<td colspan=3, style="text-align:center">SPO2_SR[2:0]<td colspan=2, style="text-align:center"> LED_PW[1:0]
+        <tr>td>-<td colspan=2, style="text-align:center">SPO2_ADC_RGE[1:0]<td colspan=3, style="text-align:center">SPO2_SR[2:0]<td colspan=2, style="text-align:center"> LED_PW[1:0]
         </table>
     *
-    *   ** Bits 6:5: SpO2 ADC Range Control **
+    *   **Bits 6:5: SpO2 ADC Range Control**
     *   This register sets the SpO2 sensor ADC’s full-scale range:
         <table>
         <caption id="spo2_adc_rge">MAX30101 SPo2 ADC Range Settings</caption>
@@ -341,7 +341,7 @@
         <tr><td>03<td>62.5<td>16384
         </table>
     *
-    *   ** Bits 4:2: SpO2 Sample Rate Control **
+    *   **Bits 4:2: SpO2 Sample Rate Control**
     *
     *   These bits define the effective sampling rate with one sample consisting
     *   of one IR pulse/conversion, one RED pulse/ conversion, and one GREEN 
@@ -362,7 +362,7 @@
         <tr><td>111<td>3200
         </table>
     *
-    *   ** Bits 1:0: LED Pulse Width Control and ADC Resolution **
+    *   **Bits 1:0: LED Pulse Width Control and ADC Resolution**
     *   These bits set the LED pulse width (the IR, Red, and Green have the same pulse width), 
     *   and, therefore, indirectly sets the integration time of the ADC in each sample. 
     *   The ADC resolution is directly related to the integration time.
@@ -379,7 +379,7 @@
     #define MAX30101_SP02_CONF 0x0A
     
     /**
-    *   \brief MAX30101 LED1 Pulse Amplitude Settings.
+    *   \brief MAX30101 LED1 Pulse Amplitude register.
     *
     *   This register allows to configure the pulse amplitude for LED1.
     *   The register is structured as follows:
@@ -457,7 +457,7 @@
     *   <table>
         <caption id="multi_led_1">MAX30101 FIFO Configuration Register</caption>
         <tr><th>B7<th>B6<th>B5<th>B4<th>B3<th>B2<th>B1<th>B0
-        <tr><td>-<td colspan=3, style='text-align:center'>SLOT2[2:0]<td>-<td colspan=3, style="text-align:center">SLOT1[2:0]<td>-
+        <tr><td>-<td colspan=3, style='text-align:center'>SLOT2[2:0]<td>-<td colspan=3, style="text-align:center">SLOT1[2:0]
         </table>
     *
     *   The settings for #MAX30101_MULTI_LED_1 and #MAX30101_MULTI_LED_2 registers
@@ -483,18 +483,112 @@
     *   \brief MAX30101 Multi-LED Mode Configuration register - 2.
     *
     *   Please refer to #MAX30101_MULTI_LED_1 for the explanation of the register.
-    *   This register is structured as follows:
     *   The register is structured as follows:
     *
     *   <table>
         <caption id="multi_led_2">MAX30101 FIFO Configuration Register</caption>
         <tr><th>B7<th>B6<th>B5<th>B4<th>B3<th>B2<th>B1<th>B0
-        <tr><td>-<td colspan=3, style='text-align:center'>SLOT2[2:0]<td>-<td colspan=3, style="text-align:center">SLOT1[2:0]<td>-
+        <tr><td>-<td colspan=3, style='text-align:center'>SLOT2[2:0]<td>-<td colspan=3, style="text-align:center">SLOT1[2:0]
         </table>
     */
     #define MAX30101_MULTI_LED_2 0x11
     
+    //==============================================
+    //        MAX30101 TEMPERATURE REGISTERS
+    //==============================================
     
+    /**
+    *   \brief MAX30101 Temperature Integer register.
+    *
+    *   The on-board temperature ADC output is split into two registers, 
+    *   one to store the integer temperature and one to store the fraction. *
+    *   Both should be read when reading the temperature data, 
+    *   and the equation below shows how to add the two registers together:
+    *   \f$T_{measured} = T_{integer} + T_{fraction}\f$.
+    *
+    *   This register stores the integer temperature data in 2’s complement format, 
+    *   where each bit corresponds to 1°C.
+    *
+    *   <table>
+        <caption id="temp_int">MAX30101 Temperature Integer Register</caption>
+        <tr><th>B7<th>B6<th>B5<th>B4<th>B3<th>B2<th>B1<th>B0
+        <tr><td colspan=8, style="text-align:center">TINT[7:0]
+        </table>
+
+    *
+        <table>
+        <caption id="temp_int">MAX30101 Temperature Values</caption>
+        <tr><th>REGISTER VALUE (hex)<th> TEMPERATURE (°C)
+        <tr><td>0x00<td>0
+        <tr><td>0x01<td>+1
+        <tr><td>...<td>...
+        <tr><td>0x7e<td>+126
+        <tr><td>0x7f<td>+127
+        <tr><td>0x80<td>-128
+        <tr><td>0x81<td>-127
+        <tr><td>...<td>...
+        <tr><td>0xFE<td>-2
+        <tr><td>0xFF<td>-1
+        </table>
+    */
+    #define MAX30101_TEMP_INT   0x1F
+    
+    /**
+    *   \brief MAX30101 Temperature Fraction register.
+    *
+    *   This register stores the fractional temperature data in increments of 0.0625°C.
+    *   If this fractional temperature is paired with a negative integer,
+    *   it still adds as a positive fractional value (e.g., -128°C + 0.5°C = -127.5°C).
+    *   This register is structured as follows:
+    *
+        <table>
+        <caption id="temp_fract">MAX30101 Temperature Fraction Register</caption>
+        <tr><th>B7<th>B6<th>B5<th>B4<th>B3<th>B2<th>B1<th>B0
+        <tr><td>-<td>-<td>-<td>-<td colspan=4, style="text-align:center">TFRAC[3:0]
+        </table>
+
+    *
+    */
+    #define MAX30101_TEMP_FRACT 0x20
+    
+    /**
+    *   \brief MAX30101 Temperature Configuration register..
+    *
+    *   This register has only one bit which is used to trigger 
+    *   temperature measurements. This is a self-clearing bit which, when set, 
+    *   initiates a single temperature reading from the temperature sensor. 
+    *   This bit clears automatically back to zero at the conclusion of the 
+    *   temperature reading when the bit is set to one.
+    *   This register is structured as follows:
+    *
+        <table>
+        <caption id="temp_en">MAX30101 Temperature Configuration Register</caption>
+        <tr><th>B7<th>B6<th>B5<th>B4<th>B3<th>B2<th>B1<th>B0
+        <tr><td>-<td>-<td>-<td>-<td>-<td>-<td>-<td>TEMP_EN
+        </table>
+    *
+    */
+    #define MAX30101_TEMP_CONF    0x21
+    
+    //==============================================
+    //        MAX30101 PART ID REGISTERS
+    //==============================================
+    
+    /**
+    *   \brief MAX30101 Revision ID register.
+    *   
+    *   This register holds the value for the revision ID number
+    *   of the MAX30101.
+    */
+    #define MAX30101_REVISION_ID    0xfe
+    
+    /**
+    *   \brief MAX30101 Part ID.
+    *   
+    *   This register holds the value for the revision ID number
+    *   of the MAX30101: the expected value to be read is 0x15.
+    */
+    #define MAX30101_PART_ID    0xff
 #endif
 
 /* [] END OF FILE */
