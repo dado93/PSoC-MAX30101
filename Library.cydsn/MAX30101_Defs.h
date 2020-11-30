@@ -52,7 +52,7 @@
     *
     *   In SpO2 and HR modes, this interrupt triggers when the FIFO write pointer 
     *   has a certain number of free spaces remaining. The trigger number can be set by the 
-    *   #MAX3031_FIFO_CONF register. The interrupt is cleared by reading the #MAX30101_INT_ST_1 register.
+    *   #MAX30101_FIFO_CONF register. The interrupt is cleared by reading the #MAX30101_INT_ST_1 register.
     *
     *   **PPG_RDY: New FIFO Data Ready**
     *
@@ -145,9 +145,11 @@
     *   It can also be changed through the I2C interface when MODE[2:0] in #MAX30101_MODE_CONF is 010, 011, or 111.
     *
     *   The register is structured as follows:
-    *   |   B7   |   B6   |    B5  |   B4   |   B3   |   B2   |   B1   |   B0   |
-    *   | ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ | 
-    *   |        |        |        |       <td colspan=5>FIFO_WR_PTR[4:0]       |
+        <table>
+        <caption id="fifo_wp">MAX30101 FIFO Write Pointer Register</caption>
+        <tr><th>B7<th>B6<th>B5<th>B4<th>B3<th>B2<th>B1<th>B0
+        <tr><td>-<td>-<td>-<td colspan=5, style="text-align:center">FIFO_WR_PTR[4:0]
+        </table>
     */
     #define MAX30101_FIFO_WP 0x04
     
@@ -160,9 +162,11 @@
     *   from the FIFO (when the read pointer advances), OVF_COUNTER is reset to zero.
     *
     *   The register is structured as follows:
-    *   |   B7   |   B6   |    B5  |   B4   |   B3   |   B2   |   B1   |   B0   |
-    *   | ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ | 
-    *   |        |        |        |       <td colspan=5>OVF_COUNTER[4:0]       |
+        <table>
+        <caption id="fifo_ovf">MAX30101 FIFO Overflow Counter Register</caption>
+        <tr><th>B7<th>B6<th>B5<th>B4<th>B3<th>B2<th>B1<th>B0
+        <tr><td>-<td>-<td>-<td colspan=5, style="text-align:center">OVF_COUNTER[4:0]
+        </table>
     */
     #define MAX30101_FIFO_OVF_CNT 0x05
     
@@ -175,9 +179,11 @@
     *   to allow rereading samples from the FIFO if there is a data communication error.
     *
     *   The register is structured as follows:
-    *   |   B7   |   B6   |    B5  |   B4   |   B3   |   B2   |   B1   |   B0   |
-    *   | ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ | 
-    *   |        |        |        |       <td colspan=5>FIFO_RD_PTR[4:0]       |
+        <table>
+        <caption id="fifo_rp">MAX30101 FIFO Read Pointer Register</caption>
+        <tr><th>B7<th>B6<th>B5<th>B4<th>B3<th>B2<th>B1<th>B0
+        <tr><td>-<td>-<td>-<td colspan=5, style="text-align:center">FIFO_RD_PTR[4:0]
+        </table>
     */
     #define MAX30101_FIFO_RP 0x06
     
@@ -188,24 +194,26 @@
     *   The sample size depends on the number of LED channels (a.k.a. channels) configured as active. 
     *   As each channel signal is stored as a 3-byte data signal, the FIFO width can be 3 bytes, 6 bytes, 9 bytes, 
     *   or 12 bytes in size. The #MAX30101_FIFO_DATA register in the I2C register map points to the next sample to be read 
-    *   from the FIFO. #MAX30101_FIFO_RD_PTR points to this sample. Reading #MAX30101_FIFO_DATA register, 
+    *   from the FIFO. #MAX30101_FIFO_RP points to this sample. Reading #MAX30101_FIFO_DATA register, 
     *   does not automatically increment the I2C register address. Burst reading this register, 
     *   reads the same address over and over.
     *   Each sample is 3 bytes of data per channel (i.e., 3 bytes for RED, 3 bytes for IR, etc.). 
-    *   The FIFO registers (0x04–0x07) can all be written and read, but in practice only the #MAX30101_FIFO_RD_PTR
+    *   The FIFO registers (0x04–0x07) can all be written and read, but in practice only the #MAX30101_FIFO_RP
     *   register should be written to in operation. The others are automatically incremented or filled with data 
     *   by the MAX30101. When starting a new SpO2 or heart rate conversion, it is recommended to first clear 
-    *   the #MAX30101_FIFO_WR_PTR, #MAX30101_OVF_COUNTER, and #MAX30101_FIFO_RD_PTR registers to all zeroes (0x00) 
+    *   the #MAX30101_FIFO_WP, #MAX30101_OVF_CNT, and #MAX30101_FIFO_RP registers to all zeroes (0x00) 
     *   to ensure the FIFO is empty and in a known state. When reading the MAX30101 registers in one
     *   burst-read I2C transaction, the register address pointer typically increments so that the next byte of
     *   data sent is from the next register, etc. The exception to this is the #MAX30101_FIFO_DATA data register,
-    *   register 0x07. When reading this register, the address pointer does not increment, but the #MAX30101_FIFO_RD_PTR does.
+    *   register 0x07. When reading this register, the address pointer does not increment, but the #MAX30101_FIFO_RP does.
     *   So the next byte of data sent represents the next byte of data available in the FIFO.
     *
     *   The register is structured as follows:
-    *   |   B7   |   B6   |    B5  |   B4   |   B3   |   B2   |   B1   |   B0   |
-    *   | ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ | 
-    *   |                  <td colspan=8>FIFO_DATA[7:0]                         |
+        <table>
+        <caption id="fifo_data">MAX30101 FIFO Data Register</caption>
+        <tr><th>B7<th>B6<th>B5<th>B4<th>B3<th>B2<th>B1<th>B0
+        <tr><td colspan=8, style="text-align:center">FIFO_DATA[7:0]
+        </table>
     */
     #define MAX30101_FIFO_DATA 0x07
     
@@ -219,9 +227,11 @@
     *   This register allows to configure the FIFO behaviour.
     
     *   It is structured as follows:
-    *   |   B7   |   B6   |    B5  |   B4   |   B3   |   B2   |   B1   |   B0   |
-    *   | ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ | 
-    *   | <td colspan=3>SMP_AVG[2:0] | FIFO_ROL_LOVER_EN | FIFO_A_FULL[3:0] |
+        <table>
+        <caption id="fifo_conf">MAX30101 FIFO Configuration Register</caption>
+        <tr><th>B7<th>B6<th>B5<th>B4<th>B3<th>B2<th>B1<th>B0
+        <tr><td colspan=3, style="text-align:center">SMP_AVG[2:0]<td> FIFO_ROL_LOVER_EN<td colspan=4, style="text-align:center">FIFO_A_FULL[3:0]
+        </table>
     *
     *   **Bits 7:5: Sample Averaging (SMP_AVE)**
     *
@@ -283,14 +293,16 @@
     *   These bits set the operating state of the MAX30101. Changing modes does not change any other setting,
     *   nor does it erase any previously stored data inside the data registers.
     *
-    *   | MODE[2:0] | MODE | ACTIVE LED CHANNELS |
-    *   |:---------:|:------:|:--------:|
-    *   |   000     |    <td colspan=2> Do not use   |
-    *   |   001     |    <td colspan=2> Do not use   |    
-    *   |   010     |    Heart Rate mode   |    Red only    |     
-    *   |   011     |    Sp02 mode   |    Red and IR   |     
-    *   |   100-110 |  <td colspan=2> Do not use   |  
-    *   |   111     |   Multi-LED mode   |    Green, RED, and/or IR
+       <table>
+        <caption id="mode_table">MAX30101 Mode settings</caption>
+        <tr><th>MODE[2:0]                      <th>MODE       <th>ACTIVE LED CHANNELS
+        <tr><td>000<td colspan=2, style="text-align:center">Do not use
+        <tr><td>001<td colspan=2, style="text-align:center">Do not use
+        <tr><td>010<td> Heart Rate mode <td> Red only
+        <tr><td>011<td> SpO2 mode <td> Red and IR
+        <tr><td>100-110<td colspan=2, style="text-align:center">Do not use
+        <tr><td>111<td> Multi-LED mode <td> Green, RED, and/or IR
+        </table>
     */
     #define MAX30101_MODE_CONF 0x09
     
@@ -300,11 +312,12 @@
     *   This register configures the sensor for SpO2 mode.
     *
     *   It is structured as follows:
-    *
-    *    |   B7   |   B6   |    B5  |   B4   |   B3   |   B2   |   B1   |   B0   |
-    *    | ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ | 
-    *    | |<td colspan=2>SPO2_ADC_RGE[1:0] | <td colspan=3> SPO2_SR[2:0] | <td colspan=2> LED_PW[1:0]|
-    */
+    <table>
+    <caption id="spo2 conf">MAX30101 SpO2 Configuration Register</caption>
+    <tr><th>B7<th>B6<th>B5<th>B4<th>B3<th>B2<th>B1<th>B0                      
+    <tr><td colspan=2,, style="text-align:center">SPO2_ADC_RGE[1:0]<td colspan=3, style="text-align:center">SPO2_SR[2:0]<td colspan=2, style="text-align:center"> LED_PW[1:0]
+    </table>
+        */
     #define MAX30101_SP02_CONF 0x0A
     
     //#define MAX30101_LED1_PA 0x0C
