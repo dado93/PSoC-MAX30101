@@ -459,7 +459,7 @@ uint8_t MAX30101_ReadTemperature(float* temperature)
         error = MAX30101_ReadRegister(MAX30101_TEMP_FRACT, &frac);
         if ( error == MAX30101_OK)
         {
-            *temperature = ((int16_t)(integer << 8)) + frac * 0.0625;
+            *temperature = ((float)(integer)) + frac * 0.0625;
         }
     }
     
@@ -477,6 +477,11 @@ uint8_t MAX30101_ReadRawTemperature(int8_t* integer, uint8_t* frac)
     }
     
     return error;
+}
+
+uint8_t MAX30101_StartTemperatureConversion(void)
+{
+    return MAX30101_WriteRegister(MAX30101_TEMP_CONF, 0x01);
 }
 
 //======================================================

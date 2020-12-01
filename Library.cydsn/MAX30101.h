@@ -186,7 +186,7 @@
     *   \retval #MAX30101_OK if device is present.
     *   \retval #MAX30101_DEV_NOT_FOUND if device is not present.  
     */
-    uint8_t MAX30101_ReadFIFO(uint8_t num_samples, uint32_t* data);
+    uint8_t MAX30101_ReadFIFO(uint8_t num_samples, uint8_t active_leds, uint32_t* data);
     
     //==============================================
     //     MAX30101 FIFO CONFIGURATION FUNCTIONS
@@ -219,7 +219,7 @@
     *
     *   This function disables FIFO Rollover. When disabled, 
     *   FIFO is not updated until #MAX30101_FIFO_DATA is read or the 
-    *   #MAX30101_WP or #MAX30101_RP positions are changed.
+    *   #MAX30101_FIFO_WP or #MAX30101_FIFO_RP positions are changed.
     *   \retval #MAX30101_OK if no error occurred.
     *   \retval #MAX30101_DEV_NOT_FOUND if device is not present on the I2C bus.
     */
@@ -296,7 +296,7 @@
     *   This function sets the value for the SpO2 ADC
     *   range. Values that can be passed as input to this
     *   function are:
-    *       - #MAX30101_SAMPLE_RATE_
+    *       - #MAX30101_ADC_RANGE_2048
     *       - #MAX30101_ADC_RANGE_4096
     *       - #MAX30101_ADC_RANGE_8192
     *       - #MAX30101_ADC_RANGE_16384
@@ -334,10 +334,10 @@
     *   This function sets the value for the SpO2 sample
     *   rate. Values that can be passed as input to this
     *   function are:
-    *       - #MAX30101_PULSE_WIDTH_69
-    *       - #MAX30101_PULSE_WIDTH_118
-    *       - #MAX30101_PULSE_WIDTH_215
-    *       - #MAX30101_PULSE_WIDTH_411
+    *       - #MAX30101_PULSEWIDTH_69
+    *       - #MAX30101_PULSEWIDTH_118
+    *       - #MAX30101_PULSEWIDTH_215
+    *       - #MAX30101_PULSEWIDTH_411
     *   \param pw the value of LED Pulse Width to be set.
     *   \retval #MAX30101_OK if no error occurred.
     *   \retval #MAX30101_DEV_NOT_FOUND if device is not present on the I2C bus.
@@ -424,6 +424,16 @@
     *   \retval #MAX30101_ERROR if error occurred during configuration.   
     */
     uint8_t MAX30101_ReadRawTemperature(int8_t* integer, uint8_t* frac);
+    
+    
+    /**
+    *   \brief Start temperature conversion on the MAX30101.
+    *
+    *   \retval #MAX30101_OK if no error occurred.
+    *   \retval #MAX30101_DEV_NOT_FOUND if device is not present on the I2C bus.
+    *   \retval #MAX30101_ERROR if error occurred during configuration.     
+    */
+    uint8_t MAX30101_StartTemperatureConversion(void);
     
     //======================================================
     //            MAX30101 PART/REVISION ID FUNCTIONS
