@@ -10,53 +10,6 @@
     #include "cytypes.h"
     
     //==============================================
-    //              MAX30101 ERRORS
-    //==============================================
-    /**
-    *   \brief I2C Address of MAX30101.
-    */
-    #define MAX30101_I2C_ADDRESS 0x57
-    
-    /**
-    *   \brief Error condition triggered when device is not found on I2C bus.
-    */
-    #define MAX30101_DEV_NOT_FOUND 1
-    
-    /**
-    *   \brief No error generated.
-    */
-    #define MAX30101_OK 0
-    
-    /**
-    *   \brief Generic error condition related to MAX30101.
-    */
-    #define MAX30101_ERROR 2
-    
-    //==============================================
-    //  MAX30101 MACROS FOR REGISTERS CONFIGURATION
-    //==============================================
-    
-    /**
-    *   \brief MAX30101 Heart Rate mode.
-    */
-    #define MAX30101_HR_MODE 0x02
-    
-    /**
-    *   \brief MAX30101 SpO2 mode. mode.
-    */
-    #define MAX30101_SPO2_MODE 0x03
-
-    /**
-    *   \brief MAX30101 Multi LED mode.
-    */
-    #define MAX30101_MULTI_MODE 0x08
-    
-    #define MAX30101_LED_1 0x00
-    #define MAX30101_LED_2 0x01
-    #define MAX30101_LED_3 0x02
-    #define MAX30101_LED_4 0x03
-
-    //==============================================
     //==============================================
     //              I2C REGISTERS
     //==============================================
