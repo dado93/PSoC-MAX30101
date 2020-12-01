@@ -22,6 +22,7 @@ int main(void)
     CyDelay(100);
     char msg[50];
     
+    
     UART_Debug_PutString("**************************\r\n");
     UART_Debug_PutString("         MAX30101         \r\n");
     UART_Debug_PutString("**************************\r\n");

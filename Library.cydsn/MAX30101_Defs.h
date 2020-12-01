@@ -10,6 +10,198 @@
     #include "cytypes.h"
     
     //==============================================
+    //              MAX30101 ERRORS
+    //==============================================
+    /**
+    *   \brief I2C Address of MAX30101.
+    */
+    #define MAX30101_I2C_ADDRESS 0x57
+    
+    /**
+    *   \brief Error condition triggered when device is not found on I2C bus.
+    */
+    #define MAX30101_DEV_NOT_FOUND 1
+    
+    /**
+    *   \brief No error generated.
+    */
+    #define MAX30101_OK 0
+    
+    /**
+    *   \brief Generic error condition related to MAX30101.
+    */
+    #define MAX30101_ERROR 2
+    
+    //==============================================
+    //  MAX30101 MACROS FOR REGISTERS CONFIGURATION
+    //==============================================
+    
+    /**
+    *   \brief MAX30101 Heart Rate mode.
+    */
+    #define MAX30101_HR_MODE 0x02
+    
+    /**
+    *   \brief MAX30101 SpO2 mode. mode.
+    */
+    #define MAX30101_SPO2_MODE 0x03
+
+    /**
+    *   \brief MAX30101 Multi LED mode.
+    */
+    #define MAX30101_MULTI_MODE 0x08
+    
+    /**
+    *   \brief MAX30101 LED channel 1 (RED).
+    */
+    #define MAX30101_LED_1 0x00
+    
+    /**
+    *   \brief MAX30101 LED channel 2 (IR).
+    */
+    #define MAX30101_LED_2 0x01
+    
+    /**
+    *   \brief MAX30101 LED channel 3 (GREEN).
+    */
+    #define MAX30101_LED_3 0x02
+    
+    /**
+    *   \brief MAX30101 LED channel 4 (GREEN).
+    */
+    #define MAX30101_LED_4 0x03
+    
+    /**
+    *   \brief MAX30101 no average in FIFO.
+    */
+    #define MAX30101_SAMPLE_AVG_1 0x00
+    
+    /**
+    *   \brief MAX30101 no average in FIFO.
+    */
+    #define MAX30101_SAMPLE_AVG_2 0x20
+    
+    /**
+    *   \brief MAX30101 no average in FIFO.
+    */
+    #define MAX30101_SAMPLE_AVG_4 0x40
+    
+    /**
+    *   \brief MAX30101 no average in FIFO.
+    */
+    #define MAX30101_SAMPLE_AVG_8 0x60
+    
+    /**
+    *   \brief MAX30101 no average in FIFO.
+    */
+    #define MAX30101_SAMPLE_AVG_16 0x80
+    
+    /**
+    *   \brief MAX30101 no average in FIFO.
+    */
+    #define MAX30101_SAMPLE_AVG_32 0xA0
+    
+    /**
+    *   \brief MAX30101 SpO2 range set to 2048 nA.
+    */
+    #define MAX30101_ADC_RANGE_2048  0x00
+    
+    /**
+    *   \brief MAX30101 SpO2 range set to 4096 nA.
+    */
+    #define MAX30101_ADC_RANGE_4096  0x20
+    
+    /**
+    *   \brief MAX30101 SpO2 range set to 8192 nA.
+    */
+    #define MAX30101_ADC_RANGE_8192  0x40
+    
+    /**
+    *   \brief MAX30101 SpO2 range set to 16384 nA.
+    */
+    #define MAX30101_ADC_RANGE_16384 0x60
+    
+    /**
+    *   \brief MAX30101 SpO2 sample rate set to 50 samples.
+    */
+    #define MAX30101_SAMPLE_RATE_50 0x00
+    
+    /**
+    *   \brief MAX30101 SpO2 sample rate set to 100 samples.
+    */
+    #define MAX30101_SAMPLE_RATE_100 0x04
+    
+    /**
+    *   \brief MAX30101 SpO2 sample rate set tot 200 samples.
+    */
+    #define MAX30101_SAMPLE_RATE_200 0x08
+    
+    /**
+    *   \brief MAX30101 SpO2 sample rate set tot 400 samples.
+    */
+    #define MAX30101_SAMPLE_RATE_400 0x0C
+    
+    /**
+    *   \brief MAX30101 SpO2 sample rate set tot 800 samples.
+    */
+    #define MAX30101_SAMPLE_RATE_800 0x10
+    
+    /**
+    *   \brief MAX30101 SpO2 sample rate set tot 1000 samples.
+    */
+    #define MAX30101_SAMPLE_RATE_1000 0x14
+    
+    /**
+    *   \brief MAX30101 SpO2 sample rate set tot 1600 samples.
+    */
+    #define MAX30101_SAMPLE_RATE_1600 0x18
+    
+    /**
+    *   \brief MAX30101 SpO2 sample rate set tot 3200 samples.
+    */
+    #define MAX30101_SAMPLE_RATE_3200 0x1C
+    
+    /**
+    *   \brief MAX30101 Pulse Width set to 69.
+    */
+    #define MAX30105_PULSEWIDTH_69	    0x00
+    
+    /**
+    *   \brief MAX30101 Pulse Width set to 118.
+    */
+    #define MAX30105_PULSEWIDTH_118  	0x01
+    
+    /**
+    *   \brief MAX30101 Pulse Width set to 215.
+    */
+    #define MAX30105_PULSEWIDTH_215  	0x02
+    
+    /**
+    *   \brief MAX30101 Pulse Width set to 411.
+    */
+    #define MAX30105_PULSEWIDTH_411  	0x03
+    
+    /**
+    *   \brief MAX30101 Slot RED enabled.
+    */
+    #define MAX30101_SLOT_RED   0x01
+    
+    /**
+    *   \brief MAX30101 Slot IR enabled.
+    */
+    #define MAX30101_SLOT_IR    0x02
+    
+    /**
+    *   \brief MAX30101 Slot GREEN enabled.
+    */
+    #define MAX30101_SLOT_GREEN 0x03
+    
+    /**
+    *   \brief MAX30101 No Slot enabled.
+    */
+    #define MAX30101_SLOT_NONE  0x00
+    
+    //==============================================
     //==============================================
     //              I2C REGISTERS
     //==============================================
