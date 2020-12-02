@@ -49,7 +49,7 @@
     /**
     *   \brief MAX30101 Multi LED mode.
     */
-    #define MAX30101_MULTI_MODE 0x08
+    #define MAX30101_MULTI_MODE 0x07
     
     /**
     *   \brief MAX30101 LED channel 1 (RED).
@@ -164,22 +164,22 @@
     /**
     *   \brief MAX30101 Pulse Width set to 69.
     */
-    #define MAX30105_PULSEWIDTH_69	    0x00
+    #define MAX30101_PULSEWIDTH_69	    0x00
     
     /**
     *   \brief MAX30101 Pulse Width set to 118.
     */
-    #define MAX30105_PULSEWIDTH_118  	0x01
+    #define MAX30101_PULSEWIDTH_118  	0x01
     
     /**
     *   \brief MAX30101 Pulse Width set to 215.
     */
-    #define MAX30105_PULSEWIDTH_215  	0x02
+    #define MAX30101_PULSEWIDTH_215  	0x02
     
     /**
     *   \brief MAX30101 Pulse Width set to 411.
     */
-    #define MAX30105_PULSEWIDTH_411  	0x03
+    #define MAX30101_PULSEWIDTH_411  	0x03
     
     /**
     *   \brief MAX30101 Slot RED enabled.
@@ -551,7 +551,7 @@
         <tr><td>11<td>411 (410.75) <td> 18
         </table>
     */
-    #define MAX30101_SP02_CONF 0x0A
+    #define MAX30101_SPO2_CONF 0x0A
     
     /**
     *   \brief MAX30101 LED1 Pulse Amplitude register.
@@ -666,7 +666,7 @@
         <tr><td>-<td colspan=3, style='text-align:center'>SLOT2[2:0]<td>-<td colspan=3, style="text-align:center">SLOT1[2:0]
         </table>
     */
-    #define MAX30101_MULTI_LED_2 0x11
+    #define MAX30101_MULTI_LED_2 0x12
     
     //==============================================
     //        MAX30101 TEMPERATURE REGISTERS

@@ -3,7 +3,9 @@
 */
 
 #include "I2C_Interface.h"
+#include "I2C_Master.h"
 #include "MAX30101.h"
+#include "string.h"
 
 //==============================================
 //          MACROS
@@ -282,21 +284,25 @@ uint8_t MAX30101_DisableTempReadyInt(void)
 //==============================================
 //          FIFO FUNCTIONS
 //==============================================
+// Read Write pointer
 uint8_t MAX30101_ReadWritePointer(uint8_t* wr)
 {
     return MAX30101_ReadRegister(MAX30101_FIFO_WP, wr);
 }
 
+// Read Overflow counter
 uint8_t MAX30101_ReadOverflowCounter(uint8_t* oc)
 {
     return MAX30101_ReadRegister(MAX30101_FIFO_OVF_CNT, oc);
 }
 
+// Read Read Pointer
 uint8_t MAX30101_ReadReadPointer(uint8_t* rr)
 {
     return MAX30101_ReadRegister(MAX30101_FIFO_RP, rr);
 }
 
+// Clear FIFO
 uint8_t MAX30101_ClearFIFO(void)
 {
     uint8_t error = MAX30101_WriteRegister(MAX30101_FIFO_RP, 0x00);
@@ -310,6 +316,170 @@ uint8_t MAX30101_ClearFIFO(void)
     }
     return error;
 }
+
+// Read FIFO Data
+uint8_t MAX30101_ReadRawFIFO(uint8_t num_samples, uint8_t active_leds, uint32_t* data)
+{
+    // We need to read a number of bytes equal to num_samples + 3 * active_leds
+    uint16_t bytes_left_ro_read = num_samples * 3 * active_leds;
+    uint8_t error;
+    //uint8_t error = I2C_Peripheral_WriteRegisterNoData(MAX30101_I2C_ADDRESS, MAX30101_FIFO_DATA);
+    //if ( error == I2C_NO_ERROR)
+    //{
+        uint8_t sample_counter = 0;
+        while(bytes_left_ro_read > 0)
+        {
+            uint16_t bytes_to_get =  active_leds * 3;
+            
+            bytes_left_ro_read -= bytes_to_get;
+            
+            uint8_t temp[sizeof(uint32_t)];
+            uint8_t temp_bytes[3];
+            uint32_t tempLong;
+            
+            error = I2C_Peripheral_ReadRegisterMulti(MAX30101_I2C_ADDRESS, MAX30101_FIFO_DATA, 3, temp_bytes);
+            
+            //Burst read three bytes - RED
+            temp[3] = 0;
+            temp[2] = temp_bytes[0];
+            temp[1] = temp_bytes[1];
+            temp[0] = temp_bytes[2];
+
+            //Convert array to long
+            memcpy(&tempLong, temp, sizeof(tempLong));
+    		
+            //Zero out all but 18 bits
+    		tempLong &= 0x3FFFF; 
+            data[sample_counter] = tempLong;
+            
+            if (active_leds > 1)
+            {
+                I2C_Peripheral_ReadRegisterMulti(MAX30101_I2C_ADDRESS, MAX30101_FIFO_DATA, 3, temp_bytes);
+               
+                //Burst read three bytes - IR
+                temp[3] = 0;
+                temp[2] = temp_bytes[0];
+                temp[1] = temp_bytes[1];
+                temp[0] = temp_bytes[2];
+            
+                //Convert array to long
+                memcpy(&tempLong, temp, sizeof(tempLong));
+        		
+                //Zero out all but 18 bits
+        		tempLong &= 0x3FFFF; 
+                sample_counter += 1;
+                data[sample_counter] = tempLong;
+            }
+            if (active_leds > 2)
+            {
+                I2C_Peripheral_ReadRegisterMulti(MAX30101_I2C_ADDRESS, MAX30101_FIFO_DATA,3, temp_bytes);
+                
+                //Burst read three bytes - GREEN
+                temp[3] = 0;
+                temp[2] = temp_bytes[0];
+                temp[1] = temp_bytes[1];
+                temp[0] = temp_bytes[2];
+
+                //Convert array to long
+                memcpy(&tempLong, temp, sizeof(tempLong));
+        		
+                //Zero out all but 18 bits
+        		tempLong &= 0x3FFFF; 
+                sample_counter += 1;
+                data[sample_counter] = tempLong;
+            }
+            sample_counter += 1;
+            
+        }
+    //}
+    return error;
+}
+
+// Read FIFO Data
+uint8_t MAX30101_ReadFIFO(uint8_t num_samples, uint8_t active_leds, MAX30101_Data* data)
+{
+    // We need to read a number of bytes equal to num_samples + 3 * active_leds
+    uint16_t bytes_left_ro_read = num_samples * 3 * active_leds;
+    uint8_t error;
+    
+    I2C_Master_MasterSendStart(MAX30101_I2C_ADDRESS, I2C_Master_WRITE_XFER_MODE);
+    I2C_Master_MasterWriteByte(MAX30101_FIFO_DATA);
+    I2C_Master_MasterSendRestart(MAX30101_I2C_ADDRESS, I2C_Master_READ_XFER_MODE);
+    
+    //I2C_Peripheral_WriteRegisterNoData(MAX30101_I2C_ADDRESS, MAX30101_FIFO_DATA);
+    //I2C_Peripheral_StartReadNoAddress(MAX30101_I2C_ADDRESS);
+    
+    while(bytes_left_ro_read > 0)
+    {
+        uint16_t bytes_to_get =  active_leds * 3;
+        
+        bytes_left_ro_read -= bytes_to_get;
+        
+        data->head++; //Advance the head of the storage struct
+        data->head %= BUFFER_STORAGE_SIZE; //Wrap condition
+        
+        uint8_t temp[sizeof(uint32_t)];
+        uint8_t temp_bytes[3];
+        uint32_t tempLong;
+        
+        //error = I2C_Peripheral_ReadBytes(temp_bytes, 3);
+        
+        //Burst read three bytes - RED
+        temp[3] = 0;
+        temp[2] = I2C_Master_MasterReadByte(I2C_Master_ACK_DATA);
+        temp[1] = I2C_Master_MasterReadByte(I2C_Master_ACK_DATA);
+        temp[0] = I2C_Master_MasterReadByte(I2C_Master_ACK_DATA);
+
+        //Convert array to long
+        memcpy(&tempLong, temp, sizeof(tempLong));
+		
+        //Zero out all but 18 bits
+		tempLong &= 0x3FFFF; 
+        
+        data->red[data->head] = tempLong; //Store this reading into the sense array
+        
+        if (active_leds > 1)
+        {
+            //error = I2C_Peripheral_ReadBytes(temp_bytes, 3);
+           
+            //Burst read three bytes - IR
+            temp[3] = 0;
+            temp[2] = I2C_Master_MasterReadByte(I2C_Master_ACK_DATA);
+            temp[1] = I2C_Master_MasterReadByte(I2C_Master_ACK_DATA);
+            temp[0] = I2C_Master_MasterReadByte(I2C_Master_ACK_DATA);
+        
+            //Convert array to long
+            memcpy(&tempLong, temp, sizeof(tempLong));
+    		
+            //Zero out all but 18 bits
+    		tempLong &= 0x3FFFF;
+            
+            data->IR[data->head] = tempLong; //Store this reading into the sense array
+        }
+        if (active_leds > 2)
+        {
+            //error = I2C_Peripheral_ReadBytes(temp_bytes, 3);
+            
+            //Burst read three bytes - GREEN
+            temp[3] = 0;
+            temp[2] = I2C_Master_MasterReadByte(I2C_Master_ACK_DATA);
+            temp[1] = I2C_Master_MasterReadByte(I2C_Master_ACK_DATA);
+            temp[0] = I2C_Master_MasterReadByte(I2C_Master_ACK_DATA);
+
+            //Convert array to long
+            memcpy(&tempLong, temp, sizeof(tempLong));
+    		
+            //Zero out all but 18 bits
+    		tempLong &= 0x3FFFF; 
+            
+            data->green[data->head] = tempLong; //Store this reading into the sense array
+        }
+    }
+    
+    I2C_Master_MasterSendStop();
+    return error;
+}
+
 //==============================================
 //    MAX30101 FIFO CONFIGURATION FUNCTIONS
 //==============================================
@@ -372,19 +542,19 @@ uint8_t MAX30101_SetMode(uint8_t mode)
 // Set SpO2 ADC Range
 uint8_t MAX30101_SetSpO2ADCRange(uint8_t range)
 {
-    return MAX30101_BitMask(MAX30101_SP02_CONF, MAX30101_SPO2_ADC_RANGE_MASK, range);
+    return MAX30101_BitMask(MAX30101_SPO2_CONF, MAX30101_SPO2_ADC_RANGE_MASK, range);
 }
 
 // Set SpO2 Sample Rate
 uint8_t MAX30101_SetSpO2SampleRate(uint8_t sr)
 {
-    return MAX30101_BitMask(MAX30101_SP02_CONF, MAX30101_SPO2_SAMPLE_RATE_MASK, sr);
+    return MAX30101_BitMask(MAX30101_SPO2_CONF, MAX30101_SPO2_SAMPLE_RATE_MASK, sr);
 }
 
 // Set SpO2 Pulse Widht
 uint8_t MAX30101_SetSpO2PulseWidth(uint8_t pw)
 {
-    return MAX30101_BitMask(MAX30101_SP02_CONF, MAX30101_SPO2_PULSEWIDTH_MASK, pw);
+    return MAX30101_BitMask(MAX30101_SPO2_CONF, MAX30101_SPO2_PULSEWIDTH_MASK, pw);
 }
 
 // Set pulse amplitude for a channel

@@ -11,6 +11,18 @@
     #include "cytypes.h"
     #include "MAX30101_Defs.h"
 
+    #define BUFFER_STORAGE_SIZE 8
+    
+    typedef struct 
+    {
+        uint32_t red[BUFFER_STORAGE_SIZE];
+        uint32_t IR[BUFFER_STORAGE_SIZE];
+        uint32_t green[BUFFER_STORAGE_SIZE];
+        uint8_t head;
+        uint8_t tail;
+    } MAX30101_Data; //This is our circular buffer of readings from the sensor
+
+    
     //==============================================
     //           MAX30101 FUNCTIONS
     //==============================================
@@ -181,12 +193,38 @@
     uint8_t MAX30101_ClearFIFO(void);
     
     /**
-    *   \brief Read FIFO.
+    *   \brief Read FIFO data.
+    *
+    *   This function reads the data in the FIFO of the MAX30101
+    *   according to the specified settings. Based on the number
+    *   of samples to be read and the number of active leds this
+    *   function will perform a complete reading of the FIFO.
+    *   Data will be returned as uint32_t.
+    *   \param[in] num_samples number of samples to be read
+    *   \param[in] active_leds number of active leds
+    *   \param[out] data pointer to variable storing raw data from FIFO
     *
     *   \retval #MAX30101_OK if device is present.
     *   \retval #MAX30101_DEV_NOT_FOUND if device is not present.  
     */
-    uint8_t MAX30101_ReadFIFO(uint8_t num_samples, uint8_t active_leds, uint32_t* data);
+    uint8_t MAX30101_ReadRawFIFO(uint8_t num_samples, uint8_t active_leds, uint32_t* data);
+    
+    /**
+    *   \brief Read FIFO data and place them in a circular buffer.
+    *
+    *   This function reads the data in the FIFO of the MAX30101
+    *   according to the specified settings. Based on the number
+    *   of samples to be read and the number of active leds this
+    *   function will perform a complete reading of the FIFO.
+    *   Data will be returned inside the circular buffer passed
+    *   in as parameter to the function.
+    *   \param[in] num_samples number of samples to be read
+    *   \param[in] active_leds number of active leds
+    *   \param[out] data pointer to circular buffer storing data from FIFO
+    *   \retval #MAX30101_OK if device is present.
+    *   \retval #MAX30101_DEV_NOT_FOUND if device is not present.  
+    */
+    uint8_t MAX30101_ReadFIFO(uint8_t num_samples, uint8_t active_leds, MAX30101_Data* data);
     
     //==============================================
     //     MAX30101 FIFO CONFIGURATION FUNCTIONS
