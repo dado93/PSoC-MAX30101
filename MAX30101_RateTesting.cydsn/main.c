@@ -1,5 +1,10 @@
 /**
-*   Main file for testing MAX30101 Library.
+*   This project allows you to compute
+*   the effective sampling rate of the
+*   MAX30101. Simply change the 
+*   sample rate configuration, and see
+*   the true sample rate printed out
+*   on the serial port.
 */
 
 #include "project.h"
@@ -21,13 +26,10 @@
 
 #define debug_print(msg) do { if (DEBUG_TEST) UART_Debug_PutString(msg);} while (0)
 
-CY_ISR_PROTO(MAX30101_ISR);
-
-uint8_t flag_temp = 0;
 
 int main(void)
 {
-    CyGlobalIntEnable; /* Enable global interrupts. */
+    CyGlobalIntEnable; // Enable global interrupts.
 
     MAX30101_Start();
     UART_Debug_Start();
@@ -38,14 +40,14 @@ int main(void)
     // Variables
     char msg[50];
     void (*print_ptr)(const char*) = &(UART_Debug_PutString);
-    uint8_t active_leds = 2;
+    uint8_t active_leds = 1;
     uint8_t rp, wp, flag = 0;
     
     
     debug_print("**************************\r\n");
     debug_print("   MAX30101 SAMPLE RATE    \r\n");
     debug_print("**************************\r\n");
-    /* Place your initialization/startup code here (e.g. MyInst_Start()) */
+    
     if (MAX30101_IsDevicePresent() == MAX30101_OK)
     {
         // Check if device is present
@@ -74,15 +76,15 @@ int main(void)
         MAX30101_DisableALCOverflowInt();
         MAX30101_DisableTempReadyInt();
         MAX30101_DisablePPGReadyInt();
-        MAX30101_DisableFIFOAFullInt();
+        MAX30101_EnableFIFOAFullInt();
      
         // set 28 samples to trigger interrupt
-        MAX30101_SetFIFOAlmostFull(28);
+        MAX30101_SetFIFOAlmostFull(32);
 
         // enable fifo rollover
         MAX30101_EnableFIFORollover();
         
-        // 1 sample averaged
+        // 8 samples averaged
         MAX30101_SetSampleAverage(MAX30101_SAMPLE_AVG_1);
         
         // Set LED Power level
@@ -95,18 +97,18 @@ int main(void)
         MAX30101_SetLEDPulseAmplitude(MAX30101_LED_4, 0x1F);
         
         // Set ADC Range
-        MAX30101_SetSpO2ADCRange(MAX30101_ADC_RANGE_16384);
+        MAX30101_SetSpO2ADCRange(MAX30101_ADC_RANGE_4096);
         
         // Pulse width
         MAX30101_SetSpO2PulseWidth(MAX30101_PULSEWIDTH_69);
         
         // Set Sample Rate
-        MAX30101_SetSpO2SampleRate(MAX30101_SAMPLE_RATE_50);
+        MAX30101_SetSpO2SampleRate(MAX30101_SAMPLE_RATE_3200);
         
         // Set mode
         MAX30101_SetMode(MAX30101_HR_MODE);
         
-        // Disable Slots
+        // Enable Slots
         MAX30101_DisableSlots();
         
         debug_print("Registers after configuration\r\n");
@@ -115,65 +117,37 @@ int main(void)
     
     debug_print("\r\n\r\n");
 
-    // Enable interrupt
-    isr_MAX30101_StartEx(MAX30101_ISR);
     // Clear FIFO
     MAX30101_ClearFIFO();
     
-    uint16_t total_samples = 0;
     uint32_t start_time = 0;
-    uint8_t first_time = 0;
     
     for(;;)
     {
-       
-        if (flag_temp == 1)
-        {
-            MAX30101_IsFIFOAFull(&flag);
-            if (flag > 0)
-            {   
-
-                MAX30101_ReadReadPointer(&rp);
-                MAX30101_ReadWritePointer(&wp);
-                //Calculate the number of readings we need to get from sensor
-                int num_samples = wp - rp;
-                if (num_samples <= 0) 
-                    num_samples += 32; //Wrap condition
-                total_samples += num_samples;
-                uint8_t raw_bytes[num_samples*active_leds*3];
-                MAX30101_ReadRawFIFOBytes(num_samples, active_leds,raw_bytes);
-                
-                if (first_time == 0)
-                {
-                    start_time = Timer_SR_ReadCounter();
-                    first_time = 1;
-                }
-            }
-            
-            flag_temp = 0;
-            flag = 0;
-        }   
+        uint16_t samples = 0;
+        start_time = Timer_SR_ReadCounter();
         
-        if (total_samples > 200)
+        while (samples < 100)
         {
-            int32_t diff =  start_time - Timer_SR_ReadCounter();
-            
-            sprintf(msg, "%d - Hz: %d\r\n", total_samples, (int)((total_samples-28) / (diff/1000000.0)));
-            debug_print(msg);
-            total_samples = 0;
-            first_time = 0;  
+            MAX30101_ReadReadPointer(&rp);
+            MAX30101_ReadWritePointer(&wp);
+            //Calculate the number of readings we need to get from sensor
+            int num_samples = wp - rp;
+            if (num_samples < 0) 
+                num_samples += 32; //Wrap condition
+            samples += num_samples;
+            uint8_t raw_bytes[num_samples*active_leds*3];
+            MAX30101_ReadRawFIFOBytes(num_samples, active_leds, raw_bytes);  
         }
         
-    }
-    
-    
-}
+        uint32_t end_time = Timer_SR_ReadCounter();
+        int32_t diff =  start_time - end_time;
+        float sr = (float)(samples) / (diff/1000000.0);
+        sprintf(msg, "Hz: %d.%d\r\n", (int)(sr),((int)(sr*100)%100));
+        debug_print(msg);
+        
+    }   
 
-CY_ISR(MAX30101_ISR)
-{
-    Connection_LED_Write(!Connection_LED_Read());
-    MAX30101_INT_ClearInterrupt();
-    flag_temp = 1;
 }
 
 /* [] END OF FILE */

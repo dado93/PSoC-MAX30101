@@ -83,7 +83,7 @@ int main(void)
         MAX30101_EnableFIFORollover();
         
         // 8 samples averaged
-        MAX30101_SetSampleAverage(MAX30101_SAMPLE_AVG_8);
+        MAX30101_SetSampleAverage(MAX30101_SAMPLE_AVG_2);
         
         // Set LED Power level
         MAX30101_SetLEDPulseAmplitude(MAX30101_LED_1, 0x1F);
@@ -101,7 +101,7 @@ int main(void)
         MAX30101_SetSpO2PulseWidth(MAX30101_PULSEWIDTH_69);
         
         // Set Sample Rate
-        MAX30101_SetSpO2SampleRate(MAX30101_SAMPLE_RATE_3200);
+        MAX30101_SetSpO2SampleRate(MAX30101_SAMPLE_RATE_400);
         
         // Set mode
         MAX30101_SetMode(MAX30101_SPO2_MODE);
