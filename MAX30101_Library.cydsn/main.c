@@ -33,7 +33,7 @@ int main(void)
     data.tail = 0;
     char msg[50];
     void (*print_ptr)(const char*) = &(UART_Debug_PutString);
-    uint8_t active_leds = 1;
+    uint8_t active_leds = 2;
     uint8_t rp, wp, flag = 0;
     
     // Initialization
@@ -73,11 +73,11 @@ int main(void)
         
         MAX30101_DisableALCOverflowInt();
         MAX30101_DisableTempReadyInt();
-        MAX30101_DisablePPGReadyInt();
-        MAX30101_EnableFIFOAFullInt();
+        MAX30101_EnablePPGReadyInt();
+        MAX30101_DisableFIFOAFullInt();
      
         // set 28 samples to trigger interrupt
-        MAX30101_SetFIFOAlmostFull(32);
+        MAX30101_SetFIFOAlmostFull(28);
 
         // enable fifo rollover
         MAX30101_EnableFIFORollover();
@@ -125,24 +125,28 @@ int main(void)
     {
         if (flag_temp == 1)
         {
-            MAX30101_IsFIFOAFull(&flag);
+            MAX30101_IsPPGReady(&flag);
             if (flag > 0)
-            {   
+            { 
                 MAX30101_ReadReadPointer(&rp);
                 MAX30101_ReadWritePointer(&wp);
                 //Calculate the number of readings we need to get from sensor
                 int num_samples = wp - rp;
-                if (num_samples <= 0) 
+                if (num_samples < 0) 
                     num_samples += 32; //Wrap condition
-                // Print out number of samples
-                sprintf(msg, "%d\r\n", num_samples);
-                debug_print(msg);
-                // Read FIFO
-                MAX30101_ReadFIFO(num_samples, active_leds, &data);
+                if (num_samples != 0)
+                {
+                    // Print out number of samples
+                    sprintf(msg, "%d\r\n", num_samples);
+                    debug_print(msg);
+                    // Read FIFO
+                    MAX30101_ReadFIFO(num_samples, active_leds, &data);
+                }
             }
-            
+                 
             flag_temp = 0;
         }        
+        
     }
 }
 
